@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <title>Iptables-boilerplate by bmaeser</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Iptables-boilerplate</h1>
+        <h2>rock solid default firewall-rules for webhosts</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/bmaeser/iptables-boilerplate/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/bmaeser/iptables-boilerplate/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/bmaeser/iptables-boilerplate" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a name="iptables-boilerplate" class="anchor" href="#iptables-boilerplate"><span class="octicon octicon-link"></span></a>iptables-boilerplate</h1>
+
+<p>rock solid default firewall-rules for webhosts</p>
+
+<h2>
+<a name="what-is-this" class="anchor" href="#what-is-this"><span class="octicon octicon-link"></span></a>What is this?</h2>
+
+<p>iptables-boilerplate is a set of predefined firewall rules that are typically used on "webhosts".
+its not a set of rules, designed to secure your home or office-network or to setup a router or gatweay.
+think of "lamp"-servers.</p>
+
+<h4>
+<a name="iptables-boilerplate-is-tested-on" class="anchor" href="#iptables-boilerplate-is-tested-on"><span class="octicon octicon-link"></span></a>iptables-boilerplate is tested on</h4>
+
+<ul>
+<li>Debian 6.0 / Squeeze (oldstable)</li>
+<li>Debian 7.0 / Wheezy (stable)</li>
+<li>Debian 8.0 / Jessie (testing)</li>
+<li>Ubuntu 10.04 LTS / Lucid</li>
+<li>Ubuntu 12.04 LTS / Precise</li>
+<li>Ubuntu 12.10 / Quantal</li>
+<li>Ubuntu 14.04 / Raring</li>
+</ul><p>we will support every LTS (Ubuntu) and stable (Debian) version.</p>
+
+<h4>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h4>
+
+<ul>
+<li>rock solid defaults</li>
+<li>easy extendable</li>
+<li>one-line opening ports</li>
+<li>one line whitelisting ips</li>
+<li>one line blacklisting ips</li>
+<li>extensively documented (inline comments)</li>
+</ul><h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>create necessary directories first</p>
+
+<pre><code>sudo mkdir /etc/firewall
+sudo mkdir /etc/firewall/custom
+</code></pre>
+
+<p>checkout the github repo and install the files</p>
+
+<pre><code>git clone git://github.com/bmaeser/iptables-boilerplate.git
+cd iptables-boilerplate
+sudo cp firewall /etc/init.d/firewall
+cd etc/firewall/
+sudo cp *.conf /etc/firewall/
+</code></pre>
+
+<p>make sure firewall ist executable and update runnlevels</p>
+
+<pre><code>sudo chmod 755 /etc/init.d/firewall
+sudo update-rc.d firewall defaults
+</code></pre>
+
+<h2>
+<a name="configuration" class="anchor" href="#configuration"><span class="octicon octicon-link"></span></a>Configuration</h2>
+
+<p>All configuration-files are to be found at /etc/firewall/</p>
+
+<p>Feel free to read the firewall-script itself and comment/uncomment what you like or dislike.</p>
+
+<h4>
+<a name="firewallconf" class="anchor" href="#firewallconf"><span class="octicon octicon-link"></span></a>firewall.conf</h4>
+
+<p>Main firewall configfile. All settings are on sane defaults, you really should know what you do
+if you change them.</p>
+
+<h4>
+<a name="servicesconf" class="anchor" href="#servicesconf"><span class="octicon octicon-link"></span></a>services.conf</h4>
+
+<p>This file is used to open ports for services like ssh or http(s) in your firewall.</p>
+
+<h6>
+<a name="syntax" class="anchor" href="#syntax"><span class="octicon octicon-link"></span></a>SYNTAX:</h6>
+
+<p>PORT/PROTOCOLL SOURCE
+where SOURCE is the source ip or network</p>
+
+<p>n.n.n.n/m - Where n.n.n.n is the IP address range and m is the bitmask.</p>
+
+<p>if SOURCE is empty it defaults to 0.0.0.0/0 (which is any IP)</p>
+
+<h6>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>EXAMPLEs:</h6>
+
+<p>opens ports for SSH for IP 192.168.0.1:</p>
+
+<pre><code>22/tcp 192.168.0.1
+22/udp 192.168.0.1
+</code></pre>
+
+<p>opens ports for HTTP for any IP</p>
+
+<pre><code>80/tcp 0.0.0.0/0
+</code></pre>
+
+<p>opens ports for HTTPS for any IP</p>
+
+<pre><code>443/tcp
+</code></pre>
+
+<h4>
+<a name="ip-whitelistconf" class="anchor" href="#ip-whitelistconf"><span class="octicon octicon-link"></span></a>ip-whitelist.conf:</h4>
+
+<p>Add all source IPs you want to have full access to this host.
+One IP per line</p>
+
+<h6>
+<a name="syntax-1" class="anchor" href="#syntax-1"><span class="octicon octicon-link"></span></a>SYNTAX:</h6>
+
+<p>n.n.n.n/m.m.m.m  - Where n.n.n.n is the IP address range and m.m.m.m is the netmask.</p>
+
+<p>n.n.n.n/m - Where n.n.n.n is the IP address range and m is the bitmask.</p>
+
+<h6>
+<a name="examples-1" class="anchor" href="#examples-1"><span class="octicon octicon-link"></span></a>EXAMPLEs:</h6>
+
+<pre><code>192.168.0.1
+192.168.1.0/8
+192.168.55.0/255.255.255.148
+</code></pre>
+
+<h4>
+<a name="ip-blacklistconf" class="anchor" href="#ip-blacklistconf"><span class="octicon octicon-link"></span></a>ip-blacklist.conf:</h4>
+
+<p>Add all source IPs you want to COMPLETELY BLOCK
+One IP per line</p>
+
+<h6>
+<a name="syntax-2" class="anchor" href="#syntax-2"><span class="octicon octicon-link"></span></a>SYNTAX:</h6>
+
+<p>n.n.n.n/m.m.m.m  - Where n.n.n.n is the IP address range and m.m.m.m is the netmask.</p>
+
+<p>n.n.n.n/m - Where n.n.n.n is the IP address range and m is the bitmask.</p>
+
+<h6>
+<a name="examples-2" class="anchor" href="#examples-2"><span class="octicon octicon-link"></span></a>EXAMPLEs:</h6>
+
+<pre><code>192.168.0.1
+192.168.1.0/8
+192.168.55.0/255.255.255.148
+</code></pre>
+
+<h4>
+<a name="custom" class="anchor" href="#custom"><span class="octicon octicon-link"></span></a>custom/*:</h4>
+
+<p>Every file/script you place here will be executed during firewall-start.
+Place your custom rules in here.</p>
+
+<p>There are some usefull examples in ./custom-examples/ that limit the ammount of new and overall connections.</p>
+
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>If you updated your runlevels, the firewall starts every time you boot your system.
+However, you can manually start/stop/restart, e.g. to update changed settings.</p>
+
+<pre><code>/etc/init.d/firewall (start|stop|restart|reload|force-reload|status)
+</code></pre>
+
+<ul>
+<li>start: starts the firewall</li>
+<li>stop: stops the firewall</li>
+<li>restart, reload, force-reload: restarts the firewall (all three the same)</li>
+<li>status: print out the status of the firewall, shows all entries in iptables</li>
+<li>version: print out the version of iptables-boilerplate</li>
+</ul><h2>
+<a name="how-to-contribute" class="anchor" href="#how-to-contribute"><span class="octicon octicon-link"></span></a>How to contribute</h2>
+
+<p>fork + hack + pull request please :-)</p>
+
+<p>thx</p>
+
+<h2>
+<a name="licence" class="anchor" href="#licence"><span class="octicon octicon-link"></span></a>Licence</h2>
+
+<p>The MIT License (MIT)
+Copyright © 2012 Bernhard Mäser, <a href="http://bmaeser.io">http://bmaeser.io</a></p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.</p>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
