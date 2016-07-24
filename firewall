@@ -103,9 +103,25 @@ case "$1" in
         # EXTERNAL CONFIGS
         ##################################################################
 
+        # CREATE PRE FILTER FOR DOCKER
+        if $enable_docker ; then
+            # Create a PRE_DOCKER table
+            $IPTABLES -N PRE_DOCKER
+            # Insert this as the first table on the FORWARD chain.
+            $IPTABLES -I FORWARD -o docker0 -j PRE_DOCKER
+            # Docker internal use
+            $IPTABLES -A PRE_DOCKER -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+            $IPTABLES -A PRE_DOCKER -i docker0 ! -o docker0 -j ACCEPT
+            $IPTABLES -A PRE_DOCKER -m state --state RELATED -j ACCEPT
+            $IPTABLES -A PRE_DOCKER -i docker0 -o docker0 -j ACCEPT
+        fi
+
         ## ACCEPT ALL CONNECTIONS FROM WHITELIST FILE /etc/firewall/ip-whitelist.conf
         for IP in `cat /etc/firewall/ip-whitelist.conf | sed 's/\s/_/g' | grep -v "^#"`; do
             $IPTABLES -A INPUT -s $IP -m state --state NEW -j ACCEPT
+            if $enable_docker ; then
+                $IPTABLES -I PRE_DOCKER -s $IP -m state --state NEW -j ACCEPT
+            fi
         done;
 
         ## DROP ALL CONNECTIONS FROM BLACKLIST FILE /etc/firewall/ip-blacklist.conf
@@ -135,8 +151,17 @@ case "$1" in
                     IP=${SERVICES[1]}
                 fi;
                 $IPTABLES -A INPUT -p $PROTO -s $IP --dport $PORT -m state --state NEW -j ACCEPT
+                if $enable_docker ;then
+                    $IPTABLES -A PRE_DOCKER -p $PROTO -s $IP --dport $PORT -m state --state NEW -j ACCEPT
+                fi
                 done <<< "$line"
         done;
+
+
+        if $enable_docker ; then
+            # Set the default action to REJECT
+            $IPTABLES -A PRE_DOCKER -j REJECT
+        fi
 
         #################################################################
         # drop and log invalid packages
