@@ -137,7 +137,7 @@ case "$1" in
                 PROTO=""
                 IP="0.0.0.0/0"
 
-                [[ "$IPv" = '6' ]] && '::/0'
+                [[ "$IPv" = '6' ]] && IP='::/0'
 
                 while IFS=' ' read -ra SERVICES; do
                     PORT=`echo ${SERVICES[0]} | cut -d"/" -f1`
