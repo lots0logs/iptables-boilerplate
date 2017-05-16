@@ -2,20 +2,23 @@
 install: all
 
 all:
-	@mkdir /etc/firewall
-	@mkdir /etc/firewall/custom
+	@mkdir -p /etc/firewall/custom
 	@echo "etc folder created"
-	@install -m 755 firewall /etc/init.d/firewall
-	@echo "Program added to init directory"
+	@install -m 755 firewall /usr/bin/firewall
+	@echo "Program added to /usr/bin directory"
 	@cp etc/firewall/*.conf /etc/firewall
-	@update-rc.d firewall defaults
-	@echo "The program is successfully installed"
+	@cp -r etc/systemd /etc
+	@systemctl daemon-reload
+	@echo "The program is successfully installed."
+	@echo 'Run `systemctl enable firewall` to start it automatically during system startup.'
 
 .PHONY: uninstall
 uninstall:
 	@rm -rf /etc/firewall
 	@echo "Removed /etc/firewall"
-	@rm -rf /etc/init.d/firewall
-	@echo "Removed /etc/init.d/firewall"
-	@update-rc.d firewall remove
+	@rm -f /usr/bin/firewall
+	@echo "Removed /usr/bin/firewall"
+	@systemctl stop firewall
+	@rm /etc/systemd/system/firewall.service
+	@systemctl daemon-reload
 	@echo "The program is successfully uninstalled"

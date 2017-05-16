@@ -1,0 +1,11 @@
+[Unit]
+Description=Firewall
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/firewall start
+ExecStop=/usr/bin/firewall stop
+
+[Install]
+WantedBy=multi-user.target
